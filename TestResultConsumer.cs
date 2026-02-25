@@ -8,6 +8,7 @@ class TestResultConsumer : IDataConsumer
     public int Passed { get; private set; }
     public int Failed { get; private set; }
     public int Skipped { get; private set; }
+    public string? TrxReportPath { get; private set; }
 
     // IExtension
     public string Uid => "test-result-consumer";
@@ -17,11 +18,15 @@ class TestResultConsumer : IDataConsumer
     public Task<bool> IsEnabledAsync() => Task.FromResult(true);
 
     // IDataConsumer
-    public Type[] DataTypesConsumed => [typeof(TestNodeUpdateMessage)];
+    public Type[] DataTypesConsumed => [typeof(TestNodeUpdateMessage), typeof(SessionFileArtifact)];
 
     public Task ConsumeAsync(IDataProducer dataProducer, IData value, CancellationToken cancellationToken)
     {
-        if (value is TestNodeUpdateMessage { TestNode: var node })
+        if (value is SessionFileArtifact artifact)
+        {
+            TrxReportPath = artifact.FileInfo.FullName;
+        }
+        else if (value is TestNodeUpdateMessage { TestNode: var node })
         {
             var property = node.Properties.SingleOrDefault<TestNodeStateProperty>();
             if (property is PassedTestNodeStateProperty)

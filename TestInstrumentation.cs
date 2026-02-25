@@ -1,5 +1,5 @@
-using Android.OS;
 using Android.Runtime;
+using Microsoft.Testing.Extensions;
 using Microsoft.Testing.Platform.Builder;
 
 namespace AndroidDotNetTest;
@@ -26,12 +26,15 @@ public class TestInstrumentation : Instrumentation
             var bundle = new Bundle();
             try
             {
-                var resultsPath = Path.Combine(Path.GetTempPath(), "TestResults");
+                var resultsPath = Path.Combine(
+                    Application.Context.GetExternalFilesDir(null)!.AbsolutePath,
+                    "TestResults");
                 var builder = await TestApplication.CreateBuilderAsync([
                     "--results-directory", resultsPath,
-                    "--report-trx-filename", "TestResults.trx"
+                    "--report-trx"
                 ]);
                 builder.AddMSTest(() => [GetType().Assembly]);
+                builder.AddTrxReportProvider();
                 builder.TestHost.AddDataConsumer(_ => consumer);
 
                 using ITestApplication app = await builder.BuildAsync();
@@ -40,7 +43,7 @@ public class TestInstrumentation : Instrumentation
                 bundle.PutInt("passed", consumer.Passed);
                 bundle.PutInt("failed", consumer.Failed);
                 bundle.PutInt("skipped", consumer.Skipped);
-                bundle.PutString("resultsPath", Path.Combine(resultsPath, "TestResults.trx"));
+                bundle.PutString("resultsPath", consumer.TrxReportPath);
                 Finish(Result.Ok, bundle);
             }
             catch (Exception ex)
