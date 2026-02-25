@@ -9,7 +9,7 @@ namespace AndroidDotNetTest;
 public class TestInstrumentation : Instrumentation, IDataConsumer
 {
     protected TestInstrumentation(IntPtr handle, JniHandleOwnership ownership)
-		: base(handle, ownership) { }
+        : base(handle, ownership) { }
 
     int _passed, _failed, _skipped;
 
@@ -25,7 +25,6 @@ public class TestInstrumentation : Instrumentation, IDataConsumer
         base.OnStart();
 
         var bundle = new Bundle();
-
         try
         {
             ITestApplicationBuilder builder = await TestApplication.CreateBuilderAsync([]);
