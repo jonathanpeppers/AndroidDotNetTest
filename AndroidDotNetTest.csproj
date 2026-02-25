@@ -21,6 +21,13 @@
     <PackageReference Include="MSTest" Version="4.0.1" />
   </ItemGroup>
 
+  <!-- MSTest.TestAdapter ships these as @(None); add to ResolvedFileToPublish so they're included in the APK -->
+  <Target Name="_IncludeMSTestAdapterAssemblies" BeforeTargets="_ResolveAssemblies">
+    <ItemGroup>
+      <ResolvedFileToPublish Include="@(None->WithMetadataValue('Extension', '.dll'))" RuntimeIdentifier="$(RuntimeIdentifier)" />
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
