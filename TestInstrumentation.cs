@@ -28,7 +28,8 @@ public class TestInstrumentation : Instrumentation
             {
                 var resultsPath = Path.Combine(Path.GetTempPath(), "TestResults");
                 var builder = await TestApplication.CreateBuilderAsync([
-                    "--results-directory", resultsPath
+                    "--results-directory", resultsPath,
+                    "--report-trx-filename", "TestResults.trx"
                 ]);
                 builder.AddMSTest(() => [GetType().Assembly]);
                 builder.TestHost.AddDataConsumer(_ => consumer);
@@ -39,7 +40,7 @@ public class TestInstrumentation : Instrumentation
                 bundle.PutInt("passed", consumer.Passed);
                 bundle.PutInt("failed", consumer.Failed);
                 bundle.PutInt("skipped", consumer.Skipped);
-                bundle.PutString("resultsPath", resultsPath);
+                bundle.PutString("resultsPath", Path.Combine(resultsPath, "TestResults.trx"));
                 Finish(Result.Ok, bundle);
             }
             catch (Exception ex)
