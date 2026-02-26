@@ -4,6 +4,8 @@ using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Extensions.Messages;
 
+[assembly: Parallelize(Scope = ExecutionScope.MethodLevel)]
+
 namespace AndroidDotNetTest;
 
 [Instrumentation(Name = "com.companyname.AndroidDotNetTest.TestInstrumentation")]
