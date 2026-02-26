@@ -22,7 +22,7 @@ public class TestInstrumentation : Instrumentation
 
         Task.Run(async () =>
         {
-            var consumer = new TestResultConsumer();
+            var consumer = new TestResultConsumer(this);
             var bundle = new Bundle();
             try
             {

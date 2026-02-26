@@ -1,9 +1,11 @@
+using Android.App;
+using Android.OS;
 using Microsoft.Testing.Platform.Extensions;
 using Microsoft.Testing.Platform.Extensions.Messages;
 
 namespace AndroidDotNetTest;
 
-class TestResultConsumer : IDataConsumer
+class TestResultConsumer(Instrumentation instrumentation) : IDataConsumer
 {
     public int Passed { get; private set; }
     public int Failed { get; private set; }
@@ -30,12 +32,32 @@ class TestResultConsumer : IDataConsumer
         {
             var property = node.Properties.SingleOrDefault<TestNodeStateProperty>();
             if (property is PassedTestNodeStateProperty)
+            {
                 Passed++;
+                SendStatus(node, "passed");
+            }
             else if (property is FailedTestNodeStateProperty or ErrorTestNodeStateProperty or TimeoutTestNodeStateProperty or CancelledTestNodeStateProperty)
+            {
                 Failed++;
+                SendStatus(node, "failed");
+            }
             else if (property is SkippedTestNodeStateProperty)
+            {
                 Skipped++;
+                SendStatus(node, "skipped");
+            }
         }
         return Task.CompletedTask;
+    }
+
+    void SendStatus(TestNode node, string outcome)
+    {
+        var bundle = new Bundle();
+        var id = node.Properties.SingleOrDefault<TestMethodIdentifierProperty>();
+        bundle.PutString("test", id is not null
+            ? $"{id.Namespace}.{id.TypeName}.{id.MethodName}"
+            : node.DisplayName);
+        bundle.PutString("outcome", outcome);
+        instrumentation.SendStatus(0, bundle);
     }
 }
